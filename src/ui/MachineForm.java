@@ -13,6 +13,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import utils.Config;
 
@@ -22,6 +23,7 @@ import utils.Config;
  */
 public class MachineForm extends javax.swing.JInternalFrame {
 
+    private static int id;
     IDao<Machine> dao;
     DefaultTableModel model;
 
@@ -146,8 +148,18 @@ public class MachineForm extends javax.swing.JInternalFrame {
         });
 
         bnUpdate.setText("Modifier");
+        bnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bnUpdateActionPerformed(evt);
+            }
+        });
 
         bnDelete.setText("Supprimer");
+        bnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bnDeleteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -166,9 +178,9 @@ public class MachineForm extends javax.swing.JInternalFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(37, 37, 37)
                 .addComponent(bnAdd)
-                .addGap(35, 35, 35)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
                 .addComponent(bnUpdate)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
+                .addGap(39, 39, 39)
                 .addComponent(bnDelete)
                 .addGap(37, 37, 37))
         );
@@ -184,6 +196,11 @@ public class MachineForm extends javax.swing.JInternalFrame {
                 "ID", "Ref", "Marque", "Prix"
             }
         ));
+        machinesList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                machinesListMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(machinesList);
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -234,14 +251,65 @@ public class MachineForm extends javax.swing.JInternalFrame {
             // TODO add your handling code here:
             String ref = txtRef.getText().toString();
             String marque = txtMarque.getText().toString();
-            double prix  = Double.parseDouble(txtPrix.getText().toString());
-            
-            dao.create(new Machine(ref, marque, prix));
+            double prix = Double.parseDouble(txtPrix.getText().toString());
+
+            if (dao.create(new Machine(ref, marque, prix))) {
+                JOptionPane.showMessageDialog(this, "votre ligne à été ajouter", "Ajouter", JOptionPane.INFORMATION_MESSAGE);
+                load();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error", "Ajouter", JOptionPane.ERROR_MESSAGE);
+            };
             load();
         } catch (RemoteException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_bnAddActionPerformed
+
+    private void bnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnUpdateActionPerformed
+        // TODO add your handling code here:
+
+        try {
+            Machine machine = dao.findById(id);
+            machine.setRef(txtRef.getText().toString());
+            machine.setMarque(txtMarque.getText().toString());
+            machine.setPrix(Double.parseDouble(txtPrix.getText().toString()));
+
+            if (dao.update(machine)) {
+                JOptionPane.showMessageDialog(this, "votre ligne à été modofié", "Modofié", JOptionPane.INFORMATION_MESSAGE);
+                load();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error", "Modofié", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (RemoteException ex) {
+            Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_bnUpdateActionPerformed
+
+    private void machinesListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_machinesListMouseClicked
+        // TODO add your handling code here:
+        id = Integer.parseInt(model.getValueAt(machinesList.getSelectedRow(), 0).toString());
+        txtRef.setText(model.getValueAt(machinesList.getSelectedRow(), 1).toString());
+        txtMarque.setText(model.getValueAt(machinesList.getSelectedRow(), 2).toString());
+        txtPrix.setText(model.getValueAt(machinesList.getSelectedRow(), 3).toString());
+    }//GEN-LAST:event_machinesListMouseClicked
+
+    private void bnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnDeleteActionPerformed
+        // TODO add your handling code here:
+        int r = JOptionPane.showConfirmDialog(this, "Vous voulez supprimé cette ligne?", "Supprimer", JOptionPane.WARNING_MESSAGE);
+         if (r == 0) {
+            try {
+                if(dao.delete(dao.findById(id))){
+                    JOptionPane.showMessageDialog(this, "Votre ligne à été supprimée");
+                    load();
+                }else{
+                    JOptionPane.showMessageDialog(this, "Error", "Supprimer", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (RemoteException ex) {
+                Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_bnDeleteActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
