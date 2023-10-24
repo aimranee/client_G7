@@ -70,7 +70,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
             
             
             for (Salle s : daoS.findAll()) {
-                jComboBox1.addItem(s.getCode());
+                jComboBox1.addItem(s);
             }
         } catch (RemoteException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
