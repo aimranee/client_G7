@@ -5,12 +5,16 @@
  */
 package ui;
 
-import dao.IDao;
+import dao.IDaoMachine;
+import dao.IDaoSalle;
 import entities.Machine;
+import entities.Salle;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -23,18 +27,23 @@ import utils.Config;
  */
 public class MachineForm extends javax.swing.JInternalFrame {
 
+    private static Salle salle;
     private static int id;
-    IDao<Machine> dao;
+    IDaoMachine daoM;
+    IDaoSalle daoS;
     DefaultTableModel model;
 
     /**
      * Creates new form MachineForm
      */
     public MachineForm() {
+
         try {
             initComponents();
-            dao = (IDao<Machine>) Naming.lookup("rmi://" + Config.ip + ":" + Config.port + "/" + "dao");
+            daoM = (IDaoMachine) Naming.lookup("rmi://" + Config.ip + ":" + Config.port + "/daoMachine");
+            daoS = (IDaoSalle) Naming.lookup("rmi://" + Config.ip + ":" + Config.port + "/daoSalle");
             model = (DefaultTableModel) machinesList.getModel();
+            jComboBox1.removeAllItems();
             load();
         } catch (NotBoundException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -49,13 +58,19 @@ public class MachineForm extends javax.swing.JInternalFrame {
     public void load() {
         try {
             model.setRowCount(0);
-            for (Machine m : dao.findAll()) {
+            for (Machine m : daoM.findAll()) {
                 model.addRow(new Object[]{
                     m.getId(),
                     m.getRef(),
                     m.getMarque(),
-                    m.getPrix()
+                    m.getPrix(),
+                    m.getSalle().getCode()
                 });
+            }
+            
+            
+            for (Salle s : daoS.findAll()) {
+                jComboBox1.addItem(s.getCode());
             }
         } catch (RemoteException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -78,6 +93,8 @@ public class MachineForm extends javax.swing.JInternalFrame {
         txtRef = new javax.swing.JTextField();
         txtMarque = new javax.swing.JTextField();
         txtPrix = new javax.swing.JTextField();
+        jComboBox1 = new javax.swing.JComboBox();
+        jLabel4 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         bnAdd = new javax.swing.JButton();
         bnUpdate = new javax.swing.JButton();
@@ -102,6 +119,14 @@ public class MachineForm extends javax.swing.JInternalFrame {
 
         jLabel3.setText("Prix : ");
 
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+
+        jLabel4.setText("Salle : ");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -111,9 +136,11 @@ public class MachineForm extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addComponent(jLabel2)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jComboBox1, 0, 231, Short.MAX_VALUE)
                     .addComponent(txtRef)
                     .addComponent(txtMarque)
                     .addComponent(txtPrix, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE))
@@ -126,15 +153,19 @@ public class MachineForm extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtRef, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(38, 38, 38)
+                .addGap(27, 27, 27)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(txtMarque, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtPrix, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(48, 48, 48))
+                    .addComponent(txtMarque, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addGap(31, 31, 31)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(txtPrix, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(27, 27, 27)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -193,7 +224,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "ID", "Ref", "Marque", "Prix"
+                "ID", "Ref", "Marque", "Prix", "Salle"
             }
         ));
         machinesList.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -240,7 +271,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         pack();
@@ -248,34 +279,38 @@ public class MachineForm extends javax.swing.JInternalFrame {
 
     private void bnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnAddActionPerformed
         try {
-            // TODO add your handling code here:
-            String ref = txtRef.getText().toString();
-            String marque = txtMarque.getText().toString();
-            double prix = Double.parseDouble(txtPrix.getText().toString());
+         // TODO add your handling code here:
+         String ref = txtRef.getText();
+         String marque = txtMarque.getText();
+         double prix = Double.parseDouble(txtPrix.getText());
 
-            if (dao.create(new Machine(ref, marque, prix))) {
-                JOptionPane.showMessageDialog(this, "votre ligne à été ajouter", "Ajouter", JOptionPane.INFORMATION_MESSAGE);
-                load();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error", "Ajouter", JOptionPane.ERROR_MESSAGE);
-            };
-            load();
-        } catch (RemoteException ex) {
-            Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
-        }
+         if (daoM.create(new Machine(ref, marque, prix, salle))) {
+         JOptionPane.showMessageDialog(this, "votre ligne à été ajouter", "Ajouter", JOptionPane.INFORMATION_MESSAGE);
+         jComboBox1.removeAllItems();
+         load();
+         } else {
+         JOptionPane.showMessageDialog(this, "Error", "Ajouter", JOptionPane.ERROR_MESSAGE);
+         jComboBox1.removeAllItems();
+         load();
+         };
+         
+         } catch (RemoteException ex) {
+         Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+         }
     }//GEN-LAST:event_bnAddActionPerformed
 
     private void bnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnUpdateActionPerformed
         // TODO add your handling code here:
 
         try {
-            Machine machine = dao.findById(id);
-            machine.setRef(txtRef.getText().toString());
-            machine.setMarque(txtMarque.getText().toString());
-            machine.setPrix(Double.parseDouble(txtPrix.getText().toString()));
+            Machine machine = daoM.findById(id);
+            machine.setRef(txtRef.getText());
+            machine.setMarque(txtMarque.getText());
+            machine.setPrix(Double.parseDouble(txtPrix.getText()));
 
-            if (dao.update(machine)) {
+            if (daoM.update(machine)) {
                 JOptionPane.showMessageDialog(this, "votre ligne à été modofié", "Modofié", JOptionPane.INFORMATION_MESSAGE);
+                jComboBox1.removeAllItems();
                 load();
             } else {
                 JOptionPane.showMessageDialog(this, "Error", "Modofié", JOptionPane.ERROR_MESSAGE);
@@ -297,12 +332,13 @@ public class MachineForm extends javax.swing.JInternalFrame {
     private void bnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnDeleteActionPerformed
         // TODO add your handling code here:
         int r = JOptionPane.showConfirmDialog(this, "Vous voulez supprimé cette ligne?", "Supprimer", JOptionPane.WARNING_MESSAGE);
-         if (r == 0) {
+        if (r == 0) {
             try {
-                if(dao.delete(dao.findById(id))){
+                if (daoM.delete(daoM.findById(id))) {
                     JOptionPane.showMessageDialog(this, "Votre ligne à été supprimée");
+                    jComboBox1.removeAllItems();
                     load();
-                }else{
+                } else {
                     JOptionPane.showMessageDialog(this, "Error", "Supprimer", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (RemoteException ex) {
@@ -311,14 +347,24 @@ public class MachineForm extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_bnDeleteActionPerformed
 
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        try {
+            // TODO add your handling code here:
+            salle = daoS.findSalleByCode(jComboBox1.getSelectedItem().toString());
+        } catch (RemoteException ex) {
+            Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jComboBox1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bnAdd;
     private javax.swing.JButton bnDelete;
     private javax.swing.JButton bnUpdate;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
