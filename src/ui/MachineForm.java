@@ -28,6 +28,8 @@ import utils.Config;
 public class MachineForm extends javax.swing.JInternalFrame {
 
     private static Salle salle;
+    private static Salle searchSalle;
+
     private static int id;
     IDaoMachine daoM;
     IDaoSalle daoS;
@@ -43,7 +45,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
             daoM = (IDaoMachine) Naming.lookup("rmi://" + Config.ip + ":" + Config.port + "/daoMachine");
             daoS = (IDaoSalle) Naming.lookup("rmi://" + Config.ip + ":" + Config.port + "/daoSalle");
             model = (DefaultTableModel) machinesList.getModel();
-            jComboBox1.removeAllItems();
+
             load();
         } catch (NotBoundException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -57,7 +59,9 @@ public class MachineForm extends javax.swing.JInternalFrame {
 
     public void load() {
         try {
+
             model.setRowCount(0);
+
             for (Machine m : daoM.findAll()) {
                 model.addRow(new Object[]{
                     m.getId(),
@@ -67,10 +71,13 @@ public class MachineForm extends javax.swing.JInternalFrame {
                     m.getSalle().getCode()
                 });
             }
-            
-            
+            jComboBox1.removeAllItems();
+            jComboBox2.removeAllItems();
+            jComboBox2.addItem("ALL");
             for (Salle s : daoS.findAll()) {
-                jComboBox1.addItem(s);
+                jComboBox1.addItem(s.getCode());
+                jComboBox2.addItem(s.getCode());
+
             }
         } catch (RemoteException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -102,13 +109,16 @@ public class MachineForm extends javax.swing.JInternalFrame {
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         machinesList = new javax.swing.JTable();
+        jComboBox2 = new javax.swing.JComboBox();
+        jLabel5 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-        setTitle("G Machine");
+        setTitle("Machine From");
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Informations machine"));
@@ -119,6 +129,11 @@ public class MachineForm extends javax.swing.JInternalFrame {
 
         jLabel3.setText("Prix : ");
 
+        jComboBox1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jComboBox1MouseClicked(evt);
+            }
+        });
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
@@ -234,20 +249,60 @@ public class MachineForm extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(machinesList);
 
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "ALL" }));
+        jComboBox2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jComboBox2MouseClicked(evt);
+            }
+        });
+        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox2ActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Search by Code of the Salle :");
+
+        jButton1.setText("Search");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(jLabel5)
+                        .addGap(29, 29, 29)
+                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(39, 39, 39)
+                        .addComponent(jButton1)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -270,33 +325,35 @@ public class MachineForm extends javax.swing.JInternalFrame {
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
+
+        getAccessibleContext().setAccessibleName("Machine From");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void bnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnAddActionPerformed
         try {
-         // TODO add your handling code here:
-         String ref = txtRef.getText();
-         String marque = txtMarque.getText();
-         double prix = Double.parseDouble(txtPrix.getText());
+            // TODO add your handling code here:
+            String ref = txtRef.getText();
+            String marque = txtMarque.getText();
+            double prix = Double.parseDouble(txtPrix.getText());
 
-         if (daoM.create(new Machine(ref, marque, prix, salle))) {
-         JOptionPane.showMessageDialog(this, "votre ligne à été ajouter", "Ajouter", JOptionPane.INFORMATION_MESSAGE);
-         jComboBox1.removeAllItems();
-         load();
-         } else {
-         JOptionPane.showMessageDialog(this, "Error", "Ajouter", JOptionPane.ERROR_MESSAGE);
-         jComboBox1.removeAllItems();
-         load();
-         };
-         
-         } catch (RemoteException ex) {
-         Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
-         }
+            if (daoM.create(new Machine(ref, marque, prix, salle))) {
+                JOptionPane.showMessageDialog(this, "votre ligne à été ajouter", "Ajouter", JOptionPane.INFORMATION_MESSAGE);
+                jComboBox1.removeAllItems();
+                load();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error", "Ajouter", JOptionPane.ERROR_MESSAGE);
+                jComboBox1.removeAllItems();
+                load();
+            };
+
+        } catch (RemoteException ex) {
+            Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_bnAddActionPerformed
 
     private void bnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bnUpdateActionPerformed
@@ -311,6 +368,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
             if (daoM.update(machine)) {
                 JOptionPane.showMessageDialog(this, "votre ligne à été modofié", "Modofié", JOptionPane.INFORMATION_MESSAGE);
                 jComboBox1.removeAllItems();
+
                 load();
             } else {
                 JOptionPane.showMessageDialog(this, "Error", "Modofié", JOptionPane.ERROR_MESSAGE);
@@ -337,6 +395,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
                 if (daoM.delete(daoM.findById(id))) {
                     JOptionPane.showMessageDialog(this, "Votre ligne à été supprimée");
                     jComboBox1.removeAllItems();
+
                     load();
                 } else {
                     JOptionPane.showMessageDialog(this, "Error", "Supprimer", JOptionPane.ERROR_MESSAGE);
@@ -348,23 +407,73 @@ public class MachineForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_bnDeleteActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
+
+
+    }//GEN-LAST:event_jComboBox2ActionPerformed
+
+    private void jComboBox2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jComboBox2MouseClicked
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_jComboBox2MouseClicked
+
+    private void jComboBox1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jComboBox1MouseClicked
         try {
             // TODO add your handling code here:
             salle = daoS.findSalleByCode(jComboBox1.getSelectedItem().toString());
         } catch (RemoteException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    }//GEN-LAST:event_jComboBox1MouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        // TODO add your handling code here:
+        model.setRowCount(0);
+        if (jComboBox2.getSelectedItem() == null || jComboBox2.getSelectedItem().toString().equals("ALL")) {
+            load();
+        } else {
+            try {
+
+                if (daoM.findAllMachinesBySalle(jComboBox2.getSelectedItem().toString()).isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "La list est vide!", "Search", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    for (Machine m : daoM.findAllMachinesBySalle(jComboBox2.getSelectedItem().toString())) {
+                        model.addRow(new Object[]{
+                            m.getId(),
+                            m.getRef(),
+                            m.getMarque(),
+                            m.getPrix(),
+                            m.getSalle().getCode()
+                        });
+                    }
+                }
+            } catch (RemoteException ex) {
+                Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }//GEN-LAST:event_jButton1MouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bnAdd;
     private javax.swing.JButton bnDelete;
     private javax.swing.JButton bnUpdate;
+    private javax.swing.JButton jButton1;
     private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JComboBox jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

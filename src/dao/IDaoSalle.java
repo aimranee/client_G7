@@ -1,4 +1,4 @@
-/*
+/* 
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -22,5 +22,5 @@ public interface IDaoSalle extends Remote {
 
     List<Salle> findAll() throws RemoteException;
     
-    Salle findSalleByCode(String id) throws RemoteException;
+    Salle findSalleByCode(String code) throws RemoteException;
 }

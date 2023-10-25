@@ -22,4 +22,6 @@ public interface IDaoMachine extends Remote {
 
     List<Machine> findAll() throws RemoteException;
     
+    List<Machine> findAllMachinesBySalle(String code) throws RemoteException;
+    
 }
