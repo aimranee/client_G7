@@ -25,10 +25,9 @@ import utils.Config;
  *
  * @author Lachgar
  */
-public class MachineForm extends javax.swing.JInternalFrame {
+public final class MachineForm extends javax.swing.JInternalFrame {
 
     private static Salle salle;
-    private static Salle searchSalle;
 
     private static int id;
     IDaoMachine daoM;
@@ -47,6 +46,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
             model = (DefaultTableModel) machinesList.getModel();
 
             load();
+            loadSalle();
         } catch (NotBoundException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MalformedURLException ex) {
@@ -71,9 +71,14 @@ public class MachineForm extends javax.swing.JInternalFrame {
                     m.getSalle().getCode()
                 });
             }
-            jComboBox1.removeAllItems();
-            jComboBox2.removeAllItems();
-            jComboBox2.addItem("ALL");
+
+        } catch (RemoteException ex) {
+            Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void loadSalle() {
+        try {
             for (Salle s : daoS.findAll()) {
                 jComboBox1.addItem(s.getCode());
                 jComboBox2.addItem(s.getCode());
@@ -340,16 +345,17 @@ public class MachineForm extends javax.swing.JInternalFrame {
             String ref = txtRef.getText();
             String marque = txtMarque.getText();
             double prix = Double.parseDouble(txtPrix.getText());
-
-            if (daoM.create(new Machine(ref, marque, prix, salle))) {
-                JOptionPane.showMessageDialog(this, "votre ligne à été ajouter", "Ajouter", JOptionPane.INFORMATION_MESSAGE);
-                jComboBox1.removeAllItems();
-                load();
+            if (salle != null) {
+                if (daoM.create(new Machine(ref, marque, prix, salle))) {
+                    JOptionPane.showMessageDialog(this, "votre ligne à été ajouter", "Ajouter", JOptionPane.INFORMATION_MESSAGE);
+                    load();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error", "Ajouter", JOptionPane.ERROR_MESSAGE);
+                    load();
+                };
             } else {
                 JOptionPane.showMessageDialog(this, "Error", "Ajouter", JOptionPane.ERROR_MESSAGE);
-                jComboBox1.removeAllItems();
-                load();
-            };
+            }
 
         } catch (RemoteException ex) {
             Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -367,8 +373,6 @@ public class MachineForm extends javax.swing.JInternalFrame {
 
             if (daoM.update(machine)) {
                 JOptionPane.showMessageDialog(this, "votre ligne à été modofié", "Modofié", JOptionPane.INFORMATION_MESSAGE);
-                jComboBox1.removeAllItems();
-
                 load();
             } else {
                 JOptionPane.showMessageDialog(this, "Error", "Modofié", JOptionPane.ERROR_MESSAGE);
@@ -394,8 +398,6 @@ public class MachineForm extends javax.swing.JInternalFrame {
             try {
                 if (daoM.delete(daoM.findById(id))) {
                     JOptionPane.showMessageDialog(this, "Votre ligne à été supprimée");
-                    jComboBox1.removeAllItems();
-
                     load();
                 } else {
                     JOptionPane.showMessageDialog(this, "Error", "Supprimer", JOptionPane.ERROR_MESSAGE);
@@ -407,7 +409,11 @@ public class MachineForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_bnDeleteActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-
+        try {
+            salle = daoS.findSalleByCode(jComboBox1.getSelectedItem().toString());
+        } catch (RemoteException ex) {
+            Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
@@ -421,12 +427,7 @@ public class MachineForm extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jComboBox2MouseClicked
 
     private void jComboBox1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jComboBox1MouseClicked
-        try {
-            // TODO add your handling code here:
-            salle = daoS.findSalleByCode(jComboBox1.getSelectedItem().toString());
-        } catch (RemoteException ex) {
-            Logger.getLogger(MachineForm.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
     }//GEN-LAST:event_jComboBox1MouseClicked
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
